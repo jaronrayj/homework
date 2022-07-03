@@ -76,4 +76,27 @@ defmodule HomeworkTest do
         raise error
     end
   end
+
+  test "able to verify hover functionality" do
+    try do
+      IO.puts("navigate to hover page")
+      url = "https://the-internet.herokuapp.com/hovers"
+      navigate_to(url)
+      assert {:ok, image_container} = search_element(:class, "figure")
+      IO.puts("hover over picture")
+      move_to(image_container, 10, 10)
+      user_name_element = find_within_element(image_container, :tag, "h5")
+      profile_link = find_within_element(image_container, :tag, "a")
+      user_text = visible_text(user_name_element)
+      IO.puts("verify name is in correct format")
+      assert true = String.contains?(user_text, "name:")
+      IO.puts("navigate to user profile")
+      profile_link |> click()
+      # if link took to actual URL could verify that user name matched up
+    rescue
+      error ->
+        HomeworkTest.error_screenshot("hover")
+        raise error
+    end
+  end
 end
