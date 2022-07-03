@@ -11,18 +11,37 @@ defmodule HomeworkTest do
     take_screenshot(error_file_path)
   end
 
+  def fill_login_info(username_text, password_text) do
+    assert {:ok, login_form} = search_element(:id, "login")
+    username_field = find_within_element(login_form, :id, "username")
+    password_field = find_within_element(login_form, :id, "password")
+    submit_button = find_within_element(login_form, :tag, "button")
+    username_field |> fill_field(username_text)
+    password_field |> fill_field(password_text)
+    submit_button |> click()
+  end
+
+  def verify_notification_message(message) do
+    alert_container = find_element(:id, "flash")
+    alert_text = String.trim(visible_text(alert_container), "\n×")
+    assert alert_text == message
+  end
+
   test "able to add and remove elements" do
     try do
       IO.puts("navigate to add/remove page")
-      url = "https://the-internet.herokuapp.com/add_remove_elements/"
-      navigate_to(url)
+      navigate_to("https://the-internet.herokuapp.com/add_remove_elements/")
+
       assert {:ok, button_container} = search_element(:class, "example")
       add_element_button = find_within_element(button_container, :tag, "button")
       delete_array = find_element(:id, "elements")
+
       IO.puts("verify no delete elements first")
       assert {:error, _} = search_element(:class, "added-manually")
+
       IO.puts("click button to add element")
       add_element_button |> click()
+
       IO.puts("click delete button to remove element")
       delete_button = find_within_element(delete_array, :class, "added-manually")
       delete_button |> click()
@@ -33,44 +52,23 @@ defmodule HomeworkTest do
     end
   end
 
-  test "login page" do
+  test "login process" do
     try do
       IO.puts("navigate to login page")
-      url = "https://the-internet.herokuapp.com/login"
-      navigate_to(url)
-      # turn this into a function to put creds into the site
-      assert {:ok, login_form} = search_element(:id, "login")
-      IO.puts("invalid credentials")
-      username = find_within_element(login_form, :id, "username")
-      password = find_within_element(login_form, :id, "password")
-      submit = find_within_element(login_form, :tag, "button")
-      username |> fill_field("testusername")
-      password |> fill_field("i'msocool")
-      submit |> click()
-      IO.puts("submit invalid creds")
-      alert_container = find_element(:id, "flash")
-      alert_text = String.trim(visible_text(alert_container), "\n×")
-      assert alert_text == "Your username is invalid!"
+      navigate_to("https://the-internet.herokuapp.com/login")
 
-      IO.puts("enter correct credentials")
-      assert {:ok, login_form} = search_element(:id, "login")
-      username = find_within_element(login_form, :id, "username")
-      password = find_within_element(login_form, :id, "password")
-      submit = find_within_element(login_form, :tag, "button")
-      username |> fill_field("tomsmith")
-      password |> fill_field("SuperSecretPassword!")
+      IO.puts("submit invalid creds")
+      HomeworkTest.fill_login_info("testusername", "i'msocool")
+      HomeworkTest.verify_notification_message("Your username is invalid!")
+
       IO.puts("submit correct credentials")
-      submit |> click()
-      alert_container = find_element(:id, "flash")
-      alert_text = String.trim(visible_text(alert_container), "\n×")
-      assert alert_text == "You logged into a secure area!"
+      HomeworkTest.fill_login_info("tomsmith", "SuperSecretPassword!")
+      HomeworkTest.verify_notification_message("You logged into a secure area!")
 
       IO.puts("logout")
       logout = find_element(:link_text, "Logout")
       logout |> click()
-      alert_container = find_element(:id, "flash")
-      alert_text = String.trim(visible_text(alert_container), "\n×")
-      assert alert_text == "You logged out of the secure area!"
+      HomeworkTest.verify_notification_message("You logged out of the secure area!")
     rescue
       error ->
         HomeworkTest.error_screenshot("login_screen")
@@ -81,18 +79,19 @@ defmodule HomeworkTest do
   test "able to verify hover functionality" do
     try do
       IO.puts("navigate to hover page")
-      url = "https://the-internet.herokuapp.com/hovers"
-      navigate_to(url)
-      # turn this into a function that is reused for each image
-      assert {:ok, image_container} = search_element(:class, "figure")
+      navigate_to("https://the-internet.herokuapp.com/hovers")
+
       IO.puts("hover over picture")
+      assert {:ok, image_container} = search_element(:class, "figure")
       move_to(image_container, 10, 10)
-      user_name_element = find_within_element(image_container, :tag, "h5")
-      profile_link = find_within_element(image_container, :tag, "a")
-      user_text = visible_text(user_name_element)
+
       IO.puts("verify name is in correct format")
+      user_name_element = find_within_element(image_container, :tag, "h5")
+      user_text = visible_text(user_name_element)
       assert true = String.contains?(user_text, "name:")
+
       IO.puts("navigate to user profile")
+      profile_link = find_within_element(image_container, :tag, "a")
       profile_link |> click()
       # if link took to actual URL could verify that user name matched up
     rescue
