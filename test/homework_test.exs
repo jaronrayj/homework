@@ -38,6 +38,7 @@ defmodule HomeworkTest do
       IO.puts("navigate to login page")
       url = "https://the-internet.herokuapp.com/login"
       navigate_to(url)
+      # turn this into a function to put creds into the site
       assert {:ok, login_form} = search_element(:id, "login")
       IO.puts("invalid credentials")
       username = find_within_element(login_form, :id, "username")
@@ -82,6 +83,7 @@ defmodule HomeworkTest do
       IO.puts("navigate to hover page")
       url = "https://the-internet.herokuapp.com/hovers"
       navigate_to(url)
+      # turn this into a function that is reused for each image
       assert {:ok, image_container} = search_element(:class, "figure")
       IO.puts("hover over picture")
       move_to(image_container, 10, 10)
