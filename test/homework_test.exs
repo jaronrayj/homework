@@ -45,6 +45,7 @@ defmodule HomeworkTest do
       IO.puts("click delete button to remove element")
       delete_button = find_within_element(delete_array, :class, "added-manually")
       delete_button |> click()
+      IO.puts("---------END TEST-----------")
     rescue
       error ->
         HomeworkTest.error_screenshot("add_remove_elements")
@@ -69,6 +70,8 @@ defmodule HomeworkTest do
       logout = find_element(:link_text, "Logout")
       logout |> click()
       HomeworkTest.verify_notification_message("You logged out of the secure area!")
+
+      IO.puts("---------END TEST-----------")
     rescue
       error ->
         HomeworkTest.error_screenshot("login_screen")
@@ -94,6 +97,7 @@ defmodule HomeworkTest do
       profile_link = find_within_element(image_container, :tag, "a")
       profile_link |> click()
       # if link took to actual URL could verify that user name matched up
+      IO.puts("---------END TEST-----------")
     rescue
       error ->
         HomeworkTest.error_screenshot("hover")
